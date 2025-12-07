@@ -25,6 +25,7 @@ def display_select_mode():
     """
     回答モードのラジオボタンを表示
     """
+    """#修正前
     # 回答モードを選択する用のラジオボタンを表示
     col1, col2 = st.columns([100, 1])
     with col1:
@@ -34,7 +35,16 @@ def display_select_mode():
             options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
             label_visibility="collapsed"
         )
-
+    """
+    """#修正後
+    回答モードのラジオボタンをサイドバーに表示
+    """
+    with st.sidebar:
+        st.markdown("### 利用目的")
+        st.session_state.mode = st.radio(
+            label="利用目的を選択してください",
+            options=[ct.ANSWER_MODE_1, ct.ANSWER_MODE_2],
+        )
 
 def display_initial_ai_message():
     """
@@ -42,8 +52,11 @@ def display_initial_ai_message():
     """
     with st.chat_message("assistant"):
         # 「st.success()」とすると緑枠で表示される
-        st.markdown("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。上記で利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。")
+        #st.markdown("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。上記で利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。")#修正前
+        st.success("こんにちは。私は社内文書の情報をもとに回答する生成AIチャットボットです。上記で利用目的を選択し、画面下部のチャット欄からメッセージを送信してください。") #修正後
+        st.warning("⚠️具体的に入力したほうが期待通りの回答を得やすいです。")
 
+        """修正前(問3)
         # 「社内文書検索」の機能説明
         st.markdown("**【「社内文書検索」を選択した場合】**")
         # 「st.info()」を使うと青枠で表示される
@@ -56,7 +69,31 @@ def display_initial_ai_message():
         st.markdown("**【「社内問い合わせ」を選択した場合】**")
         st.info("質問・要望に対して、社内文書の情報をもとに回答を得られます。")
         st.code("【入力例】\n人事部に所属している従業員情報を一覧化して", wrap_lines=True, language=None)
+        """
 
+        #修正後
+        """
+        サイドバーに表示する共通説明（社内文書検索・社内問い合わせの両方を表示）
+        """
+        st.sidebar.markdown("---")
+
+        # --- 社内文書検索 ---
+        st.sidebar.markdown("**【「社内文書検索」について】**")
+        st.sidebar.info("入力内容と関連性が高い社内文書のありかを検索します。")
+        st.sidebar.code(
+            "【入力例】\n社員の育成方針に関するMTGの議事録",
+            wrap_lines=True,
+            language=None
+        )
+
+        # --- 社内問い合わせ ---
+        st.sidebar.markdown("**【「社内問い合わせ」について】**")
+        st.sidebar.info("質問に対して、社内文書の内容をもとに回答を生成します。")
+        st.sidebar.code(
+            "【入力例】\n人事部に所属している従業員情報を一覧化して",
+            wrap_lines=True,
+            language=None
+        )
 
 def display_conversation_log():
     """
@@ -160,10 +197,12 @@ def display_search_llm_response(llm_response):
             # ページ番号を取得
             main_page_number = llm_response["context"][0].metadata["page"]
             # 「メインドキュメントのファイルパス」と「ページ番号」を表示
-            st.success(f"{main_file_path}", icon=icon)
+            # st.success(f"{main_file_path}", icon=icon) #修正前
+            st.success(f"{main_file_path}（ページNo.{main_page_number+1}）", icon=icon) #修正後
         else:
             # 「メインドキュメントのファイルパス」を表示
-            st.success(f"{main_file_path}", icon=icon)
+            st.success(f"{main_file_path}(ページ情報なし)", icon=icon)
+            
 
         # ==========================================
         # ユーザー入力値と関連性が高いサブドキュメントのありかを表示
@@ -216,7 +255,9 @@ def display_search_llm_response(llm_response):
                 # ページ番号が取得できない場合のための分岐処理
                 if "page_number" in sub_choice:
                     # 「サブドキュメントのファイルパス」と「ページ番号」を表示
-                    st.info(f"{sub_choice['source']}", icon=icon)
+                    # st.info(f"{sub_choice['source']}", icon=icon) #修正前
+                    st.info(f"{sub_choice['source']}（ページNo.{sub_choice['page_number']+1}）", icon=icon) #修正後
+
                 else:
                     # 「サブドキュメントのファイルパス」を表示
                     st.info(f"{sub_choice['source']}", icon=icon)
@@ -296,7 +337,7 @@ def display_contact_llm_response(llm_response):
                 # ページ番号を取得
                 page_number = document.metadata["page"]
                 # 「ファイルパス」と「ページ番号」
-                file_info = f"{file_path}"
+                file_info = f"{file_path}（ページNo.{page_number+1}）"
             else:
                 # 「ファイルパス」のみ
                 file_info = f"{file_path}"

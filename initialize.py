@@ -97,6 +97,10 @@ def initialize_session_id():
         # ランダムな文字列（セッションID）を、ログ出力用に作成
         st.session_state.session_id = uuid4().hex
 
+#マジックナンバーの管理(chunk_size, chunk_overlap, k)
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
+K = 5
 
 def initialize_retriever():
     """
@@ -123,8 +127,8 @@ def initialize_retriever():
     
     # チャンク分割用のオブジェクトを作成
     text_splitter = CharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
+        chunk_size=CHUNK_SIZE,
+        chunk_overlap=CHUNK_OVERLAP,
         separator="\n"
     )
 
@@ -135,7 +139,8 @@ def initialize_retriever():
     db = Chroma.from_documents(splitted_docs, embedding=embeddings)
 
     # ベクターストアを検索するRetrieverの作成
-    st.session_state.retriever = db.as_retriever(search_kwargs={"k": 3})
+    #st.session_state.retriever = db.as_retriever(search_kwargs={"k": 3}) 変更前
+    st.session_state.retriever = db.as_retriever(search_kwargs={"k": K}) # 変更後
 
 
 def initialize_session_state():
